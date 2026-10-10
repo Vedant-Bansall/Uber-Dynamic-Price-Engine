@@ -31,6 +31,7 @@ FEATURE_COLUMNS = ("recent_requests", "available_drivers", "supply_demand_ratio"
 
 SEED_DAYS = 28
 SEED_NUM_DRIVERS = 200
+SEED_END_DATE = "2026-10-01T00:00:00+00:00"
 
 class Settings(pydantic_settings.BaseSettings):
     model_config = pydantic_settings.SettingsConfigDict(env_file=f"{BASE_DIR}/.env", env_file_encoding="utf-8", extra="ignore")
@@ -42,5 +43,3 @@ class Settings(pydantic_settings.BaseSettings):
     test_db_name: str
 
 settings = Settings(_env_file=f"{BASE_DIR}/.env", _env_file_encoding="utf-8")
-
-print(settings)
