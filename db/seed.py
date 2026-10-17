@@ -288,3 +288,18 @@ driver_locations = pings_df.loc[:, ["driver_id", "driver", "zone_id", "is_availa
 
 # Zones
 zones = pd.DataFrame({"zone_id": zone_id, "zone_name": zone}) # df creation for zones
+
+# Connecting to db
+with psycopg.connect(dbname=config.settings.db_name, host=config.settings.db_host, port=config.settings.db_port, user=config.settings.db_user, password=config.settings.db_password.get_secret_value()) as conn:  # noqa: SIM117 Creating postgre connection
+    with conn.cursor() as cur: # Creating cursor
+        cur.execute("TRUNCATE TABLE zones, rides, driver_locations, pricing_logs RESTART IDENTITY") # Removing existing data from tables
+        # Creating stringIO objects
+        zones_io = io.StringIO(zones.to_csv(index=False, header=False))
+        rides_io = io.StringIO(rides.to_csv(index=False, header=False))
+        driver_locations_io = io.StringIO(driver_locations.to_csv(index=False, header=False))
+        with cur.copy("COPY zones (zone_id, zone_name) FROM STDIN WITH CSV") as copy: # Copying data
+            copy.write(zones_io.read()) # Copying data
+        with cur.copy("COPY rides (ride_id, rider_id, pickup_zone_id, dropoff_zone_id, distance_miles, status, requested_at) FROM STDIN WITH CSV") as copy:
+            copy.write(rides_io.read())
+        with cur.copy("COPY driver_locations (driver_id, driver, zone_id, is_available, ping_time) FROM STDIN WITH CSV") as copy:
+            copy.write(driver_locations_io.read())
