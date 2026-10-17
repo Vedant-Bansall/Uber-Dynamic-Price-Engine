@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS rides(
 CREATE TABLE IF NOT EXISTS driver_locations (
     ping_id BIGSERIAL PRIMARY KEY,
     driver_id UUID NOT NULL,
+    driver TEXT NOT NULL,
     zone_id INT NOT NULL REFERENCES zones(zone_id),
     is_available BOOLEAN NOT NULL DEFAULT TRUE,
     ping_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
