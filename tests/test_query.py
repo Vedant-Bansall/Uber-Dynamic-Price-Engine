@@ -140,3 +140,32 @@ def test_get_pings_empty_range_dtypes(db_conn):
     assert types.is_integer_dtype(pings["zone_id"])
     assert types.is_bool_dtype(pings["is_available"])
     assert types.is_datetime64_any_dtype(pings["ping_time"])
+
+# Zone tests
+def test_get_zones_boundaries_singular(db_conn):
+    with db_conn.cursor() as cur:
+        cur.execute("INSERT INTO zones (zone_id, zone_name) VALUES (%s, %s)", (1, "Kristown"))
+    db_conn.commit()
+
+    zones = q.get_zones(db_conn)
+    assert len(zones) == 1
+
+def test_get_zones_boundaries_multiple(db_conn):
+    with db_conn.cursor() as cur:
+        cur.executemany("INSERT INTO zones (zone_id, zone_name) VALUES (%s, %s)", ((1, "Kristown"), (4, "Noelletown"), (2, "Susietown")))
+    db_conn.commit()
+
+    zones = q.get_zones(db_conn)
+    assert len(zones) == 3
+    assert list(zones.columns.values) == ["zone_id", "zone_name"]
+    assert (zones["zone_id"].iloc[0] == 1) and (zones["zone_id"].iloc[1] == 2) and (zones["zone_id"].iloc[2] == 4)
+    assert (zones["zone_name"].iloc[0] == "Kristown") and (zones["zone_name"].iloc[1] == "Susietown") and (zones["zone_name"].iloc[2] == "Noelletown")
+
+def test_zones_correct_dtype(db_conn):
+    with db_conn.cursor() as cur:
+        cur.executemany("INSERT INTO zones (zone_id, zone_name) VALUES (%s, %s)", ((1, "Kristown"), (4, "Noelletown"), (2, "Susietown")))
+    db_conn.commit()
+
+    zones = q.get_zones(db_conn)
+    assert types.is_integer_dtype(zones["zone_id"])
+    assert types.is_string_dtype(zones["zone_name"])

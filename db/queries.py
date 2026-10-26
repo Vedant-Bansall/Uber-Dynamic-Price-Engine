@@ -29,6 +29,6 @@ def get_pings(conn: psycopg.Connection, start: datetime.datetime, end: datetime.
 
 def get_zones(conn: psycopg.Connection) -> pd.DataFrame: # Param of connection object
     with conn.cursor(row_factory=psycopg.rows.dict_row) as cur: # Creating cursor object from connection
-        rows = cur.execute("SELECT zone_id, zone_name FROM zones").fetchall() # Selecting everything from zones, no start or end time needed as there isn't any to filter this table by (it is just zone and zone id)
+        rows = cur.execute("SELECT zone_id, zone_name FROM zones ORDER BY zone_id").fetchall() # Selecting everything from zones, no start or end time needed as there isn't any to filter this table by (it is just zone and zone id)
         description = cur.description # Getting cursor description
         return pd.DataFrame(rows, columns=[item.name for item in description]).astype({"zone_id": int, "zone_name": str}) # Returning DF straight away because there is no time filtering required/possible 
